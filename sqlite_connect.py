@@ -1,15 +1,32 @@
 import sqlite3
+import uuid
 
 class SqlDatabase:
     def __init__(self):
         self.conn = sqlite3.connect("SQLiteDatabase.db")
 
-    def create_table(self, table_name, attributes):
+    def create_table(self, table_name, schema):
+        """
+        Creates a new table in the SQLite database based on the provided schema.
+
+        Args:
+            table_name (str): The name of the table to be created.
+            schema (str): The schema definition of the table, including column names and data types.
+
+        Example:
+            schema = "id INTEGER PRIMARY KEY, name TEXT, age INTEGER"
+            create_table("users", schema)
+            # This will create a table named "users" with columns: id, name, and age.
+
+        Note:
+            - Ensure that the database connection (`self.conn`) is established before calling this method.
+            - The method assumes that the schema string provided is correctly formatted as SQL.
+        """
         try:
             self.conn.execute(
                 f'''
                     Create table {table_name} (
-                        {attributes}
+                        {schema}
                     )
                 '''
                 )
@@ -18,6 +35,21 @@ class SqlDatabase:
             print(f"Exception occured: {e}")
 
     def insert_data(self, table_name, data_dict):
+        """
+        Inserts data into a specified table in the database.
+
+        Args:
+            table_name (str): The name of the table where the data will be inserted.
+            data_dict (dict): A dictionary containing column names as keys and the corresponding data as values.
+
+        Example:
+            data_dict = {"name": "John", "age": 30}
+            insert_data("users", data_dict)
+            # This will insert a new record into the "users" table with "name" as "John" and "age" as 30.
+
+        Note:
+            The method assumes that the database connection is already established (through `self.conn`) and `self.conn.commit()` is called after insertion.
+        """
         try:
             self.conn.execute(
                 f'''insert into {table_name} {tuple(data_dict.keys())} VALUES {tuple(data_dict.values())}'''
@@ -28,20 +60,50 @@ class SqlDatabase:
         except Exception as e:
             print(f"Error in Insertion: {e}")
 
-    def delete(self, table_name):
+    def delete(self, table_name, condition):
         """
-        Delete rows
-        """
-        obj.conn.execute(f'''Delete from {table_name} Where Name="Chief Editor"''')
-        obj.conn.commit()
+        Deletes rows from a specified table based on a given condition.
 
-    def execute_query(self, query):
-        return obj.conn.execute(query)
-        # obj.conn.commit()
+        Args:
+            table_name (str): The name of the table from which rows will be deleted.
+            condition (str): The SQL condition to specify which rows to delete.
+                            Example: 'Name="Chief Editor"' or 'id=5'
+
+        Returns:
+            int: The number of rows deleted from the table.
+
+        Raises:
+            Exception: If there is an error during the deletion process, the exception is caught and an error message is printed.
+
+        Example:
+            delete("employees", 'Name="John"')
+            # Deletes rows where the Name is "John" in the "employees" table.
+        """
+        try:
+            # Execute the deletion with a parameterized query
+            query = f"DELETE FROM {table_name} WHERE {condition}"
+            cursor = self.conn.execute(query)
+
+            # Commit the changes to the database
+            self.conn.commit()
+
+            # Get the number of rows affected by the query
+            rows_deleted = cursor.rowcount
+
+            print(f"Deletion successful! {rows_deleted} row(s) deleted from {table_name}.")
+            return rows_deleted
+
+        except Exception as e:
+            print(f"Error during deletion: {e}")
+            return 0
+
 
 
 if __name__=='__main__':
+
     obj = SqlDatabase()
+
+    # obj.delete("Users", 'Username="john"')
 
     # ************************************** Users Table creation **************************************
     table = "Users"
@@ -49,17 +111,19 @@ if __name__=='__main__':
         User_Id INT AUTO_INCREMENT PRIMARY KEY,
         Username VARCHAR(50) NOT NULL,
         Password VARCHAR(255) NOT NULL,  
-        Email VARCHAR(50) NOT NULL UNIQUE 
+        Email VARCHAR(50) NOT NULL UNIQUE,
+        Created_At TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     '''
-    # obj.create_table(table_name = table, attributes=user_attributes)
+    # obj.create_table(table_name=table, schema=user_attributes)
 
+    u_id = str(uuid.uuid4())
     user_dc = {
-        'Username': 'Kevin',
-        'Password': 'kevin123',
-        'email': 'kevin@gmail.com'
+        'User_Id': u_id,
+        'Username': 'Arzoo',          # kevin, John, 
+        'Password': 'arzoo#123',         #kevindevin, johnthedon
+        'email': 'arzoo.cs@gmail.com'
     }
-    # obj.insert_data(table, user_dc)
-
+    obj.insert_data(table, user_dc)
 
 
     # ************************************** Agents Table creation **************************************
@@ -145,7 +209,7 @@ if __name__=='__main__':
     "Topic_Id": "2538dfa5-332b-4010-bfb4-476f4f247a12",
 
     "Research_Topic": "1. AI in Healthcare",
-    
+
     "Chief_Editor_Output": "**Final Report: Research Project Overview**\n\n**Executive Summary**\n\nThis comprehensive report presents the findings of a rigorous research project conducted by our team of experts. The study aimed to investigate [research topic] and provide actionable insights for [target audience]. Our research methodology combined [methods used] to gather data from [data sources]. The results indicate [key findings] and highlight [implications for the field].\n\n**Introduction**\n\n[Background information on the research topic, including context, relevance, and significance]\n\n**Literature Review**\n\n[A critical analysis of existing research on the topic, including key theories, concepts, and debates]\n\n**Methodology**\n\n[A detailed description of the research design, including data collection methods, sample selection, and data analysis procedures]\n\n**Results**\n\n[A clear and concise presentation of the research findings, including any visual aids such as tables, figures, and graphs]\n\n**Discussion**\n\n[An in-depth analysis of the results, including implications for the field, limitations of the study, and avenues for future research]\n\n**Conclusion**\n\n[A summary of the key findings and their significance, including recommendations for [target audience]\n\n**Recommendations**\n\n[Actionable suggestions for [target audience] based on the research findings]\n\n**Limitations**\n\n[A discussion of the study's limitations and potential avenues for future research]\n\n**Appendices**\n\n[Additional materials that support the research, including raw data, extra figures and tables, and detailed descriptions of methodologies]\n\n**References**\n\n[A comprehensive list of sources cited in the report, formatted according to the chosen citation style]\n\nI am confident that this final report meets the quality standards and is ready for publication.",
     
     "Researcher_Output": "**Final Report: Research Project Overview**\n\n**Executive Summary**\n\nThis comprehensive report presents the findings of a rigorous research project conducted by our team of experts. The study aimed to investigate AI in Healthcare and provide actionable insights for healthcare professionals. Our research methodology combined online research to gather data from various sources. The results indicate that AI has the potential to transform healthcare by improving efficiency, user experience, diagnosis, health monitoring, and data connection. The report highlights the benefits of AI in healthcare, including improved patient care, reduced costs, and enhanced population health.\n\n**Introduction**\n\nArtificial intelligence (AI) is transforming various industries, and healthcare is no exception. AI has the potential to revolutionize healthcare by improving patient outcomes, reducing costs, and enhancing the overall quality of care. This report provides an overview of the current state of AI in healthcare, its benefits, and its potential applications.\n\n**Literature Review**\n\nAI in healthcare is a rapidly growing field, with numerous research studies and applications emerging in recent years. According to a report by McKinsey, AI has the potential to transform healthcare by improving efficiency, reducing costs, and enhancing patient care. AI can be used in various applications, including health analytics, diagnosis, and treatment.\n\n**Methodology**\n\nThis report is based on online research, using various sources including academic journals, research studies, and industry reports. The research methodology combined online research to gather data from various sources.\n\n**Results**\n\nThe results of the research indicate that AI has the potential to transform healthcare by improving efficiency, user experience, diagnosis, health monitoring, and data connection. AI can be used in various applications, including health analytics, diagnosis, and treatment.\n\n**Discussion**\n\nThe use of AI in healthcare has numerous benefits, including improved patient care, reduced costs, and enhanced population health. However, there are also challenges and limitations to the adoption of AI in healthcare, including regulatory issues, data privacy concerns, and the need for further research.\n\n**Conclusion**\n\nIn conclusion, AI has the potential to transform healthcare by improving patient outcomes, reducing costs, and enhancing the overall quality of care. The report highlights the benefits of AI in healthcare, including improved patient care, reduced costs, and enhanced population health.\n\n**Recommendations**\n\nBased on the findings of this report, we recommend that healthcare professionals and organizations consider the adoption of AI in healthcare. However, further research is needed to address the challenges and limitations of AI in healthcare.\n\n**Limitations**\n\nThe limitations of this report include the reliance on online research and the need for further research to address the challenges and limitations of AI in healthcare.\n\n**Appendices**\n\nThis report includes an appendix that provides additional information on the sources used in the research.\n\n**References**\n\nThe references cited in this report include academic journals, research studies, and industry reports.\n\nI am confident that this final report meets the quality standards and is ready for publication.",

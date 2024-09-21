@@ -82,13 +82,19 @@ class AiResearchAgency:
         if st.session_state.report and st.session_state.report != "":
             with st.container():
                 st.write("Research report generated successfully!")
-                # st.download_button(
-                #     label="Download Report file",
-                #     data=st.session_state.report,
-                #     file_name="final_report.pdf",
-                #     mime="application/pdf",
-                #     #mime="text/html",
-                # )
+
+                pdf_file_path = "final_report.pdf"
+                with open(pdf_file_path, "rb") as pdf_file:
+                    pdf_data = pdf_file.read()
+                
+                generated_file_name = str(st.session_state.RESEARCH_TOPIC)
+
+                st.download_button(
+                    label="Download PDF Report",
+                    data=pdf_data,    # st.session_state.report
+                    file_name=f"{generated_file_name}.pdf",
+                    mime="application/pdf",
+                )
             st.session_state.generating = False
 
     def sidebar(self):
