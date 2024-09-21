@@ -12,7 +12,7 @@ class Tasks:
       expected_output='A cohesive, accurate, and well-structured final report ready for publication.',
       context=context_list,
       )
-
+  
   # Researcher Task
   def create_task_conduct_research(self, RESEARCH_TOPIC, agent, context_list=[]):
     return Task(

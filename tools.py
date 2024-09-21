@@ -1,7 +1,10 @@
+# from crewai_tools.tools import FileReadTool
+# import requests, re, mdpdf
+
 from langchain.tools import tool
-from crewai_tools.tools import FileReadTool
-import os, requests, re, mdpdf, subprocess
 from tavily import TavilyClient
+import os, subprocess
+import sqlite3
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -60,6 +63,23 @@ class Tools:
       content = f.read()
 
     return content
+  
+
+  def log_data_in_db(self, table_name, data_dict):
+    conn = sqlite3.connect("SQLiteDatabase.db")
+    try:
+      
+      conn.execute(
+          f'''INSERT INTO {table_name} {tuple(data_dict.keys())} VALUES {tuple(data_dict.values())}'''
+      )
+
+      conn.commit()
+      print(f"Insertion succesful! in {table_name}")
+      
+    except Exception as e:
+      print(f"Error in Insertion: {e}")
+      
+    conn.close()
 
   # Read file tool
   # file_read_tool = FileReadTool(

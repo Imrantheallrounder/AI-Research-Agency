@@ -18,7 +18,7 @@ class Agents:
   def __init__(self, RESEARCH_TOPIC, GROQ_API_KEY=GROQ_API_KEY):
 
     self.RESEARCH_TOPIC = RESEARCH_TOPIC
-    self.response_dc = {"research_topic": RESEARCH_TOPIC}
+    self.response_dc = {"Research_Topic": RESEARCH_TOPIC}
 
     os.environ["GROQ_API_KEY"] = GROQ_API_KEY
     self.llm_llama_8b = ChatOpenAI(
@@ -82,11 +82,11 @@ class Agents:
         st.write(f"I finished my task:\n{output['output']}")
         
         if output!= "":
-          self.response_dc[f"{agent_name} output"] = output["output"]
+          self.response_dc[f"{agent_name}_Output"] = output["output"]
           print("###########################################################")
           print(output["output"])
           if action_dc!={}:
-            self.response_dc[f"{agent_name} output"]['action'] = action_dc['action']
+            self.response_dc[f"{agent_name}_Output"]['Action'] = action_dc['action']
 
         # # Log to CSV
         # with open(self.log_file, mode='a', newline='') as file:
@@ -99,7 +99,6 @@ class Agents:
 
 
 
-
   def create_chief_editor(self, tools_list=[]):
     return Agent(
       role='Chief Editor',
@@ -109,7 +108,7 @@ class Agents:
       llm=self.llm_llama_70b,
       tools=tools_list,
       allow_delegation=False,
-      step_callback=lambda step: self.step_callback(step, "Chief Editor"),
+      step_callback=lambda step: self.step_callback(step, "Chief_Editor"),
       )
 
   def create_researcher(self, tools_list=[]):

@@ -8,6 +8,7 @@ from agents import Agents
 from tasks import Tasks
 
 import json
+import uuid
 
 class AiResearchAgency:
 
@@ -62,7 +63,11 @@ class AiResearchAgency:
                 json.dump(content, file, indent=4)
                 print("Saved intemediate responses in Json file: intermediate_responses.json")
         
+        agents.response_dc["Topic_Id"] = str(uuid.uuid4())
         write_json_to_file("intermediate_responses.json", agents.response_dc)
+        tools.log_data_in_db("Logs", agents.response_dc)
+
+        # add Topic_Id
         
         return output
         
