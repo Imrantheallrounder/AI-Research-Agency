@@ -64,7 +64,7 @@ class Tools:
 
     return content
   
-
+  
   def log_data_in_db(self, table_name, data_dict):
     conn = sqlite3.connect("SQLiteDatabase.db")
     try:

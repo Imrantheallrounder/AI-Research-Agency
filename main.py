@@ -1,12 +1,8 @@
 import streamlit as st
-
 from crewai import Crew
-from textwrap import dedent
-
 from tools import Tools
 from agents import Agents
 from tasks import Tasks
-
 import json
 import uuid
 
@@ -70,51 +66,85 @@ class AiResearchAgency:
         # add Topic_Id
         
         return output
-        
 
     def report_generation(self):
-
         if st.session_state.generating:
-            st.session_state.report = self.run_research_agency(
-                st.session_state.RESEARCH_TOPIC
-            )
+            with st.spinner("🔍 Our AI team is hard at work generating your research report..."):
+                st.session_state.report = self.run_research_agency(
+                    st.session_state.RESEARCH_TOPIC
+                )
 
         if st.session_state.report and st.session_state.report != "":
+            st.balloons()
+            st.success("🎉 Research report generated successfully!")
+            
             with st.container():
-                st.write("Research report generated successfully!")
-
-                pdf_file_path = "final_report.pdf"
-                with open(pdf_file_path, "rb") as pdf_file:
-                    pdf_data = pdf_file.read()
+                col1, col2 = st.columns([2, 1])
                 
-                generated_file_name = str(st.session_state.RESEARCH_TOPIC)
+                with col1:
+                    st.subheader("📊 Your Research Report is Ready!")
+                    st.markdown(
+                        """
+                        <div style='background-color: #e6f3ff; padding: 20px; border-radius: 10px;'>
+                            <h4>What's Inside:</h4>
+                            <ul>
+                                <li>Comprehensive analysis of your topic</li>
+                                <li>Latest research findings and trends</li>
+                                <li>Expert insights and recommendations</li>
+                                <li>Visual data representations</li>
+                            </ul>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+                
+                with col2:
+                    st.markdown(
+                        """
+                        <div style='background-color: #f0f2f6; padding: 20px; border-radius: 10px; text-align: center;'>
+                            <h4>Download Your Report</h4>
+                            <p>Get your comprehensive PDF report now!</p>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+                    pdf_file_path = "final_report.pdf"
+                    with open(pdf_file_path, "rb") as pdf_file:
+                        pdf_data = pdf_file.read()
+                    
+                    generated_file_name = str(st.session_state.RESEARCH_TOPIC)
 
-                st.download_button(
-                    label="Download PDF Report",
-                    data=pdf_data,    # st.session_state.report
-                    file_name=f"{generated_file_name}.pdf",
-                    mime="application/pdf",
-                )
+                    st.download_button(
+                        label="📥 Download PDF Report",
+                        data=pdf_data,
+                        file_name=f"{generated_file_name}.pdf",
+                        mime="application/pdf",
+                        key="download_report",
+                    )
+            
             st.session_state.generating = False
 
     def sidebar(self):
         with st.sidebar:
-            st.title("AI RESEARCH AGENCY")
+            st.title("📡 AI RESEARCH AGENCY")
 
-            st.write(
+            st.markdown(
                 """
-                To generate a research report, enter a topic. \n
-                Your team of AI agents will generate a report for you!
-                """
+                <div style='text-align: center; padding: 10px; background-color: #f0f2f6; border-radius: 10px;'>
+                    <h3>Generate Your Research Report</h3>
+                    <p>Enter a topic below and let our AI team create a comprehensive report for you!</p>
+                </div>
+                """,
+                unsafe_allow_html=True
             )
 
-            st.text_input("Topic", key="RESEARCH_TOPIC", placeholder="Enter a research topic")
+            st.text_input("Research Topic", key="RESEARCH_TOPIC", placeholder="E.g., Artificial Intelligence in Healthcare")
 
-            if st.button("Generate Report"):
+            if st.button("⚙️ Generate Report", type="primary"):  #🚀 
                 st.session_state.generating = True
 
     def render(self):
-        st.set_page_config(page_title="AI Research Agency", page_icon="🤖")   # 📧
+        st.set_page_config(page_title="AI Research Agency", page_icon="📡", layout="wide")
 
         if "topic" not in st.session_state:
             st.session_state.topic = ""
@@ -126,6 +156,33 @@ class AiResearchAgency:
             st.session_state.generating = False
 
         self.sidebar()
+
+        st.title("📡 Welcome to AI Research Agency")
+        st.markdown(
+            """
+            <div style='background-color: #f0f2f6; padding: 20px; border-radius: 10px;'>
+                <h3>Unlock the Power of AI-Driven Research</h3>
+                <p>Generate comprehensive research reports on any topic with the combined expertise of our AI agents. 
+                From literature reviews to trend analysis, we've got you covered!</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        st.markdown("---")
+
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.markdown("### 🚀 Fast")
+            st.write("Generate reports in minutes, not days.")
+        with col2:
+            st.markdown("### 🧠 Intelligent")
+            st.write("Powered by cutting-edge AI technology.")
+        with col3:
+            st.markdown("### 📊 Comprehensive")
+            st.write("Get in-depth analysis and insights.")
+
+        st.markdown("---")
 
         self.report_generation()
 
